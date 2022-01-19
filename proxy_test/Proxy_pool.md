@@ -62,3 +62,36 @@ ADSL（Asymmetric Digital Subscriber Line）非对称数字用户环路。
 IP分布在多个A段，量级为千万级，如果将ADSL主机作为代理，隔时拨号更换IP可以防止IP封禁，此外稳定性也会更好。  
 购买ADSL云服务器，安装代理软件（流行的有Squid和TinyProxy）。  
 动态获取IP cui在Pypi上发布了一个adslproxy的工具。
+
+# 模拟登录  
+
+## 模拟登录原理
+
+1. 模拟登录主要分为两种模式：
+   - 基于Session和Cookie；  
+   - 基于JWT（JSON Web Token）的模拟登录  
+     前后端分离式，请求数据时服务器会校验请求中携带的JWT是否有效   
+
+2. 基于Session和Cookie  
+Cookie和Session一定是相互配合工作。
+   + Cookie里可能只保存了SessionID相关信息，服务器就能根据这个信息找到对应的Session；  
+   + Cookie直接保存了某些凭证信息。  
+3. 基于JWT  
+   Session和Cookie的校验存在一定问题：  
+   + 服务器需维护用户登录的Session信息；
+   + 分布式部署不方便，不适合前后端分离的项目。  
+   
+   JWT是为了在网络环境中传递而执行的一种基于JSON的开放标准，实际上就是在每次登录时都通过一个Token字段校验登录状态，  
+   一般用来在身份提供者和服务提供者之间传递要认证的用户身份信息。，以便从资源服务器获取资源，此外可以增加一些业务必要的校验逻辑。
+   JWT一般是一个经过Base64加密的字符串，拥有自己的标准，如下：
+   ```text
+   eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ1c2VyTmFtZSI6ImJhb2JhbyIsImV4cCI6MTU5OTkyMjUyOCwidXNlcklkIjoyMX0.YhA3kh9KZOAb7om1C7o3vBhYp0f61mhQWWOoCrrhqvo
+    ```       
+   中间有两个分隔作用的'.'，三段式加密，分别为Header，Payload和Signature：  
+   + Header：声明JWT的签名算法（加密算法），还可能包括JWT编号或者类型；  
+   + Payload：通常为业务需要但不敏感信息；  
+   + Signature：签名，利用密钥secret对Header和Payload的信息加密后形成的，这个密钥保存在服务器端。如果Header和Payload被修改，可以通过Signature来判断。  
+   
+4. 模拟登录  
+5. 账号池  
+   通过账号分流防止被封  
