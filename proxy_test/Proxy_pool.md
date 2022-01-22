@@ -126,6 +126,19 @@ Cookie和Session一定是相互配合工作。
     + 代码压缩：去除代码中不必要的的空格、换行等内容，使源码压缩为几行内容，降低代码的可读性同时提高网站的加载速度；  
         主流前端技术会用webpack和Rollup等工具进行打包，它们会对远大吗进行编译和压缩；  
     + 代码混淆：使用变量替换、字符串阵列化、控制流平坦化、多态变异、僵尸函数、调试保护等手段，将代码变得难以阅读和分析；  
-        仙子啊JavaScript混淆的主流实现是***javascript-obfuscator***、***terser***两个库
+        现在JavaScript混淆的主流实现是***javascript-obfuscator***、***terser***两个库
     + 代码加密：通过某种手段将JavaScript代码进行加密，转成人无法阅读或者解析的代码，例如WebAssembly技术，它可以将JavaScript代码用C/C++实现，JavaScript调用其编译形成后的文件来执行相应功能。  
+    + 变量名混淆：可以在javascript-obfuscator中identifierNamesGenerator来实现，如：将其值设为hexadecimal，则会将变量名替换为十六进制。  
+    + 字符串混淆：将一个字符串放到一个数组里面，使之无法被直接搜索到。可以通过stringArray参数控制，默认为true；  
+    + 代码自我保护：我们可以通过设置selfDefending参数开启代码自我保护功能。开启之后，混淆后的JavaScript会强制以一行形式显示，如果将混淆后的代码进行格式化或者重命名，改代码将无法执行。  
+    + 控制流平坦化：其实是将代码的执行逻辑混淆，使其变得复杂、难度。其基本思想是将一些逻辑处理块都统一加上一个前驱逻辑块，每个逻辑块都由前置逻辑块进行条件判断和分发，构成闭环逻辑，导致整个执行逻辑复杂、难读。  
+    + 无用代码注入：无用代码即不会被执行的代码或对上下文没有任何影响的代码，诸如后可以对现有的JavaScript代码阅读形成干扰。可以使用deadCodeInjection参数开启这个选项，默认为false。  
+    + 对象键名替换：如果是一个对象，可以使用transformObjectKeys来对对象的键值进行替换。  
+    + 禁用控制台输出：可以使用disableConsoleOutput来禁用掉console.log输出功能，增大调试难度；  
+    + 调试保护：在Javascript代码中加入debugger关键字，执行到该位置时，就会进入断点调试模式。如果在多个位置加入debugger，或者某个逻辑反复执行debugger就会反复进入断点调试模式，原本的代码就无法顺畅执行。  
+    + 域名锁定：通过控制domainLock来控制JavaScript代码只能在特定域名下运行，降低被模仿或者盗用的风险；
+    + 特殊编码：使用特殊的工具包（aaencode、jjencode、jsfuck等）对代码进行混淆和编码；  
+3.WebAssembly  
+    基本思路：将核心逻辑代码使用其他语言（C/C++）来编写，并编译成类似字节码的文件并通过JavaScript来调用，从而起到二进制级别的防护。
+    
     
