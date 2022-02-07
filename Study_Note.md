@@ -15,3 +15,5 @@ left:0px代表不偏移；left:16px代表从左算起向右偏移16个像素。
 ****爬虫验证码识别****  
 1.OCR（Optical Character Recognition），光学字符识别。  
 pytesseract与tesserocr都是python下的OCR识别库，都是对tesseract做的一层python封装，pytesseract是是Google的Tesseract-OCR引擎包装器。
+
+
