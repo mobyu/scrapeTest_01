@@ -173,8 +173,25 @@ ATS全称Abstract Syntax Tree,抽象语法树。
 
 
 #### 20220208  
+##### Charles抓包
 1. 安装java及ideal 2021.3；
 2. 安装charles并进行手机抓包
     + 电脑端安装证书；
-    + 手机端安装证书并信任；
-    + 手机端设置代理。
+    + 手机端安装证书并信任（手机访问chls.pro/ssl下载证书）；
+    + 手机端设置代理。  
+3. 功能：  
+    + 分析请求；
+    + 重发请求：将捕获到的请求内容加以修改并把修改后的内容发送出去；
+    + 修改响应内容： 例如可以将响应内容修改为本地或者远程的某个文件，实现数据的修改和伪造；
+##### mitmproxy  
+1. 手机端设置代理后需要访问mitm.it来下载证书
+
+####  mitmdump
+1. 配合py脚本可以抓取App相关请求内容。例如:mitmdump -s script.py  
+    ```python
+   def response(flow):
+       # flow.request.headers['User-Agent'] = 'MitmProxy'
+       print(flow.request.url)
+       print(flow.response.text)
+   ```
+  可以打印请求url和响应内容。
