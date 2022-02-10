@@ -195,3 +195,6 @@ ATS全称Abstract Syntax Tree,抽象语法树。
        print(flow.response.text)
    ```
   可以打印请求url和响应内容。
+####  appium   
+1. 安装Android Studio及配置Android SDK；
+2. 安装appium-inspector,但是没有搞清楚怎么使用。
