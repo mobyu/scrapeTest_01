@@ -198,3 +198,9 @@ ATS全称Abstract Syntax Tree,抽象语法树。
 ####  appium   
 1. 安装Android Studio及配置Android SDK；
 2. 安装appium-inspector,但是没有搞清楚怎么使用。
+####  Airtest
+1. 安装Airtest并尝试使用；
+2. 运行过程出错cannot import name ‘_registerMatType‘。  
+    原因：同时安装了opencv-python和opencv-contrib-python 版本之间不匹配造成的  
+    解决方法：卸载一项后再次安装相同版本的包即可。
+3. 基于Poco的UI组件自动化
