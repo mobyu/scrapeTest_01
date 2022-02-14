@@ -17,6 +17,7 @@ OUTPUT_FOLDER = 'movie'
 os.path.exists(OUTPUT_FOLDER) or os.makedirs(OUTPUT_FOLDER)
 scrape_titles = []
 
+
 # poco("com.sec.android.app.launcher:id/home_icon")
 
 def scrape_index():
