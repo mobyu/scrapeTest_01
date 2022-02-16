@@ -232,3 +232,60 @@ Frida优缺点：
     + 使用安卓原生支持方式的，可以使用7.0以下版本系统；
     + 直接Hook用于校验的API，无论证书是否可信，直接返回True；
     + 反编译还原App代码，修改校验逻辑，重新打包。
+    + Xpose + JustTruestMe方式： JustTrustMe是一个Xpose模块；
+    + VirtualXpose + JustTrustMe：  
+        VirtualXpose是基于VirtualApp和epic，在非ROOT环境下运行Xpose模块实现（支持Android 5.0 - 10.0）  
+    +Frida + DroidSSLUnpining：同样基于Hook证书校验逻辑绕过。
+#### Android脱壳  
+Android的壳用来保护App源码不被轻易反编译和修改，加壳之后App的源码无法通过直接反编译获得。  
+1. 加壳原理：  
+    壳本身也是一个dex文件，可以称之为shell.dex文件。原App的dex文件被加密，shell.dex文件可以解密并运行解密后dex文件。
+2. 加壳过程  
+    1. 对原dex文件加密：从需要加壳的apk文件中，可以提取出一个dex文件（origin.dex），利用加密算法对该文件进行加密，得到encrypt.dex文件；  
+    2. 合成新的dex文件：合并加密得到的encrypt.dex文件和shell.dex文件，将encrypt.dex文件追加在shell.dex文件后面，形成新的dex文件，称之为new.dex文件；  
+    3. 替换dex文件：把APK文件中的origin.dex文件替换成new.dex文件并重新打包签名。  
+3. 壳的分类  
+    + 一代壳：整体加壳，整体保护即上述 “2”中整体替换；  
+    + 二代壳：提供方法粒度的保护，即方法抽取型壳。将保护力度细化到了方法级别，对于dex中的某些方法置空，只有在被调用的时候才会解密加载；  
+    + 三代壳：指令粒度的保护，即指令抽取型壳。主要分为VMP壳和dex2C壳。就是将Java层的方法Native化。
+4. 脱壳  
+    + 一代壳：市面上免费加壳服务几乎都是一代壳，例如：360加固，腾讯加固，阿里加固等；  
+    + 二代壳：一般需要付费（银行App），脱壳基本思路为***主动调用***,主流脱壳工具是FART； 
+    + 三代壳：基本靠手工。
+5. 实践  
+    1. frida_dump：主要原理为通过文件头内容搜索dex文件并dump下来；  
+    2. FRIDA-DEXDump：基于Frida对手机App进行暴力内存搜索实现脱壳；  
+    3. FART：对于二代壳主流解决方案是FART，在ART环境下基于主动调用的自动化脱壳方案。
+#### 利用IDA Pro静态分析  
+Java中的JNI，即 Java本地接口（Java Native Interface），这是Java调用Native语言的一种特性（通常指 C/C++）。通过JNI调用C/C++编写的代码。  
+Android中使用JNI的好处：提升防护等级。因为使用C/C++编写好代码后会被编译到一个以so为后缀的文件，Java层需要直接加载该so文件并调用so文件暴露的方法，只通过jadx-gui反编译无法把so文件还原为原来的C/C++代码。  
+完整还原C/C++代码几乎不可能，但是可以通过反汇编得到底层汇编代码还原C/C++。
+1. IDA Pro：交互式反汇编器专业版。  
+    可以将二级制文件中的的机器代码转化成汇编代码，甚至根据汇编代码的执行逻辑还原出高级语言（C/C++）  
+#### OLLVM混淆后模拟执行so文件  
+如果在so文件中加入混淆机制，即使还原出C/C++代码也几乎不可读。Native层实现混淆常用OLLVM，即针对LLVM的代码混淆工具。  
+LLVM是一个编译器架构，是模块化、可重用的编译器和工具链技术的集合，功能是把源代码（C/C++）转化成目标机器能执行的代码。  
+1. LLVM架构从广义上分为三部分——前端、优化器、后端。  
+    + 前端：前端会使用一个Clang的套件，负责完成一些代码的词法分析、语法分析、语义分析和生成中间代码。  
+    + 后端：代码优化和生成目标程序可以归类为LLVM后端，将前端生成的代码转化为机器码。  
+    + 中间过程会使用LLVM Pass模块。
+2. OLLVM的核心为修改Pass模块，对中间代码进行混淆，这样后端根据中间代码生成的目标程序也会混淆。  
+3. OLLVM支持LLVM支持的所有前端语言和所有目标平台。  
+    具有三大功能：  
+    + Instructions Substitution（指令替换）；  
+    + Bogus Control Flow（混淆控制流）；  
+    + Control Flow Flattening（控制流平展）。
+4. 混淆后so文件代码逻辑调用  
+    两种方法：  
+    + 直接通过工具和调试找出so文件代码逻辑再实现；  
+    + 不关心so文件内部逻辑直接调用so文件。
+5. 基于Frida-RPC模拟调用so文件  
+    + 电脑安装frida-tools;  
+    + 手机下载并运行frida-server;  
+    + 手机和电脑处于同一局域网下，并且能够使用adb连接手机。
+6. 基于AndServer-RPC模拟调用so文件  
+    AndServer是可以运行再Android手机上的一个HTTP服务器，Android的一个第三方包。  
+    相当于在手机上启动了一个HTTP服务器，服务器内部可以直接调用App中的方法得到结果并返回。
+7. 基于unidbg模拟执行so文件。 
+    Python的AndroidNativeEmu和Java的unidbg都支持在电脑上直接执行so文件。  
+    unidbg是基于unicorn的逆向工具（unicorn是一个CPU模拟框架），在unicorn的基础上，unidbg可以模拟JNI调用Native API，支持模拟调用系统指令，支持JavaVM、JNIEnv和模拟ARM32、ARM64指令。
